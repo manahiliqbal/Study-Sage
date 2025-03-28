@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
+</head>
+<body>
+    <!-- Notification Popup -->
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <span id="popup-close-btn" class="popup-close-btn">&times;</span>
+            <p id="popup-message" class="popup-message">PDF processed successfully!</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1 class="app-title">PDF Assistant</h1>
+        <p class="app-subtitle">Upload your documents and ask questions about their content</p>
+        
+        <!-- PDF Upload Section -->
+        <div class="upload-section">
+            <h2>Upload Documents</h2>
+            <input type="file" id="pdf-upload" multiple accept="application/pdf" />
+            <button onclick="uploadPDF()">Process Files</button>
+        </div>
+
+        <!-- Chatbot Interface -->
+        <div class="chat-container">
+            <div id="chatbox" class="chatbox">
+                <p><strong>Assistant</strong> Hello! Upload a PDF document, and I'll be ready to answer your questions about it.</p>
+            </div>
+            <div class="input-section">
+                <div class="input-wrapper">
+                    <input type="text" id="question" placeholder="Ask a question about your documents..." />
+                    <!-- The voice button will be inserted here by JavaScript -->
+                </div>
+                <button class="send-button" onclick="askQuestion()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Browser compatibility notice for voice feature -->
+    <div class="compatibility-notice" id="compatibility-notice" style="display: none;">
+        <p>Voice recognition may not be available in your browser. Try using Chrome for the best experience.</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

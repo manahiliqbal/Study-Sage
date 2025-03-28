@@ -1,0 +1,441 @@
+/* General Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', 'Segoe UI', -apple-system, sans-serif;
+}
+
+:root {
+    --bg-color: #f5f7fa;
+    --primary-color: #94a3b8;
+    --primary-hover: #64748b;
+    --accent-color: #8b5cf6;
+    --accent-hover: #7c3aed;
+    --text-color: #334155;
+    --light-text: #64748b;
+    --border-color: #e2e8f0;
+    --card-bg: #ffffff;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --transition: all 0.3s ease;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 32px 16px;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+h1, h2, h3, h4 {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+/* Upload Section */
+.upload-section {
+    background-color: var(--card-bg);
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
+}
+
+.upload-section h2 {
+    margin-bottom: 16px;
+    font-size: 1.25rem;
+    color: var(--text-color);
+}
+
+.upload-section input[type="file"] {
+    margin-right: 12px;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: calc(100% - 130px);
+    max-width: 100%;
+    font-size: 0.875rem;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.upload-section input[type="file"]::file-selector-button {
+    margin-right: 10px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.upload-section input[type="file"]::file-selector-button:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Chat Container */
+.chat-container {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    height: 600px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.chatbox {
+    flex-grow: 1;
+    padding: 24px;
+    overflow-y: auto;
+    border-bottom: 1px solid var(--border-color);
+    scroll-behavior: smooth;
+}
+
+.chatbox p {
+    margin-bottom: 18px;
+    line-height: 1.6;
+    max-width: 90%;
+    padding: 14px 18px;
+    border-radius: 14px;
+    position: relative;
+}
+
+.chatbox p:last-child {
+    margin-bottom: 10px;
+}
+
+.chatbox p strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.8rem;
+    color: var(--light-text);
+}
+
+/* User message style */
+.chatbox p:nth-child(odd) {
+    background-color: #e9d5ff;
+    border-radius: 14px 14px 0 14px;
+    color: #5b21b6;
+    align-self: flex-end;
+    margin-left: auto;
+}
+
+/* Bot message style */
+.chatbox p:nth-child(even) {
+    background-color: #f1f5f9;
+    border-radius: 14px 14px 14px 0;
+    color: var(--text-color);
+}
+
+.input-section {
+    display: flex;
+    padding: 16px;
+    background-color: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+}
+
+.input-section input {
+    flex-grow: 1;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px 0 0 8px;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    transition: var(--transition);
+}
+
+.input-section input:focus, .upload-section input[type="file"]:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.input-section button, .upload-section button {
+    padding: 12px 20px;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.upload-section button {
+    border-radius: 8px;
+    margin-top: 0;
+}
+
+button:hover {
+    background-color: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Popup Styling */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    backdrop-filter: blur(3px);
+}
+
+.popup-content {
+    position: relative;
+    background-color: var(--card-bg);
+    margin: 15% auto;
+    padding: 28px 24px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.popup-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--light-text);
+    transition: var(--transition);
+}
+
+.popup-close-btn:hover {
+    color: var(--text-color);
+}
+
+.popup-message {
+    font-size: 1rem;
+    padding: 12px 0;
+}
+
+/* Typing effect styling */
+.typing-cursor {
+    display: inline-block;
+    width: 6px;
+    height: 18px;
+    background-color: var(--accent-color);
+    animation: blink 1s infinite;
+    margin-left: 4px;
+    vertical-align: middle;
+    border-radius: 2px;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        padding: 16px 8px;
+    }
+    
+    .upload-section, .chat-container {
+        border-radius: 10px;
+    }
+    
+    .upload-section input[type="file"] {
+        width: 100%;
+        margin-bottom: 12px;
+    }
+    
+    .upload-section button {
+        width: 100%;
+    }
+}
+
+/* App title */
+.app-title {
+    text-align: center;
+    margin-bottom: 24px;
+    color: var(--accent-color);
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.app-subtitle {
+    text-align: center;
+    margin-top: -20px;
+    margin-bottom: 32px;
+    color: var(--light-text);
+    font-size: 0.9rem;
+}
+
+.response-content {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.response-content h3 {
+    color: #2c3e50;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid #eee;
+}
+
+.response-content p {
+    margin-bottom: 1em;
+}
+
+.response-content ul, .response-content ol {
+    margin-bottom: 1em;
+    padding-left: 2em;
+}
+
+.response-content li {
+    margin-bottom: 0.5em;
+}
+
+.response-content blockquote {
+    border-left: 4px solid #ddd;
+    padding-left: 1em;
+    color: #666;
+    font-style: italic;
+    margin: 1em 0;
+}
+
+.response-content hr {
+    border: 0;
+    height: 1px;
+    background: #ddd;
+    margin: 2em 0;
+}
+
+.response-content strong {
+    color: #1a5276;
+}
+
+
+/* Add to your CSS file or <style> tag in the HTML */
+
+/* Main container for responses */
+.response-content {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Headings */
+.response-content h1, 
+.response-content h2, 
+.response-content h3 {
+    color: #2c3e50;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    font-weight: 600;
+}
+
+.response-content h3 {
+    border-bottom: 1px solid #eaecef;
+    padding-bottom: 0.3em;
+}
+
+/* Paragraphs */
+.response-content p {
+    margin-bottom: 1em;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+/* Lists */
+.response-content ul, 
+.response-content ol {
+    margin-bottom: 1em;
+    padding-left: 2em;
+}
+
+.response-content li {
+    margin-bottom: 0.5em;
+}
+
+/* Quotes */
+.response-content blockquote {
+    background-color: #f8f9fa;
+    border-left: 4px solid #6c5ce7;
+    padding: 0.5em 1em;
+    margin: 1em 0;
+}
+
+/* Horizontal rule - replace purple bars */
+.response-content hr {
+    height: 1px;
+    background-color: #e1e4e8;
+    border: none;
+    margin: 1.5em 0;
+}
+
+/* Code blocks */
+.response-content pre,
+.response-content code {
+    font-family: 'Consolas', 'Monaco', monospace;
+    background-color: #f6f8fa;
+    border-radius: 3px;
+    padding: 0.2em 0.4em;
+}
+
+.response-content pre {
+    padding: 1em;
+    overflow-x: auto;
+    margin-bottom: 1em;
+}
+
+/* Fix for the error message display */
+.error-message {
+    color: #e74c3c;
+    background-color: #fdf2f2;
+    border-left: 4px solid #e74c3c;
+    padding: 1em;
+    margin: 1em 0;
+    border-radius: 4px;
+}
+
+/* PDF responses specific styling */
+.pdf-response-container {
+    width: 100%;
+    margin-bottom: 1.5em;
+    overflow-wrap: break-word;
+}
