@@ -8,27 +8,22 @@ const questionInput = document.getElementById("question");
 // Speech Recognition setup
 let recognition = null;
 let isListening = false;
+let lastInputType = 'text'; // Track whether the last input was text or voice
 
 // Explicitly check and request microphone permission
 function checkMicrophonePermission() {
-    // First check if we already have permission
-    return navigator.permissions.query({name: 'microphone'})
+    return navigator.permissions.query({ name: 'microphone' })
         .then(permissionStatus => {
-            console.log("Microphone permission status:", permissionStatus.state);
-            
             if (permissionStatus.state === 'granted') {
                 return true;
             } else {
-                // We need to request permission by actually trying to use the microphone
                 return navigator.mediaDevices.getUserMedia({ audio: true })
                     .then(stream => {
-                        // Immediately stop all tracks to release the microphone
                         stream.getTracks().forEach(track => track.stop());
                         showPopup("Microphone access granted!");
                         return true;
                     })
                     .catch(error => {
-                        console.error("Microphone permission error:", error);
                         showPopup("You need to allow microphone access for voice input to work.");
                         return false;
                     });
@@ -40,10 +35,8 @@ function checkMicrophonePermission() {
         });
 }
 
-
 // Comprehensive Speech Recognition Initialization
 function initSpeechRecognition() {
-    // Cross-browser speech recognition
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || window.mozSpeechRecognition || window.msSpeechRecognition;
     
     if (!SpeechRecognition) {
@@ -53,49 +46,33 @@ function initSpeechRecognition() {
     
     try {
         recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
+        recognition.lang = navigator.language || 'en-US';
         
-        // Configuration for better recognition
-        recognition.continuous = false;  // Stop after one speech segment
-        recognition.interimResults = true;  // Show partial results
-        recognition.maxAlternatives = 1;  // Return most confident result
-        recognition.lang = navigator.language || 'en-US';  // Use system language or default to English
-        
-        // Detailed event handlers
         recognition.onstart = () => {
             isListening = true;
-            console.log('Speech recognition started');
             document.getElementById("voice-button").classList.add('listening');
         };
         
         recognition.onresult = (event) => {
-            // Get the most recent result
             const speechResult = event.results[event.results.length - 1];
             const transcript = speechResult[0].transcript.trim();
             
             if (transcript) {
-                // Update input field with recognized text
                 const questionInput = document.getElementById("question");
                 questionInput.value = transcript;
-                
-                // Add visual feedback
+                lastInputType = 'voice';
                 questionInput.classList.add('voice-input');
-                setTimeout(() => {
-                    questionInput.classList.remove('voice-input');
-                }, 1000);
-                
-                // Optional: Highlight the recognized text briefly
+                setTimeout(() => { questionInput.classList.remove('voice-input'); }, 1000);
                 questionInput.style.backgroundColor = '#e6f7ff';
-                setTimeout(() => {
-                    questionInput.style.backgroundColor = '';
-                }, 1000);
+                setTimeout(() => { questionInput.style.backgroundColor = ''; }, 1000);
             }
         };
         
         recognition.onend = () => {
-            console.log('Speech recognition ended');
             toggleVoiceRecognition(false);
-            
-            // Auto-submit if text was captured
             const questionInput = document.getElementById("question");
             if (questionInput.value.trim()) {
                 askQuestion();
@@ -103,30 +80,25 @@ function initSpeechRecognition() {
         };
         
         recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            
-            // Detailed error handling
             switch(event.error) {
                 case 'no-speech':
-                    showPopup("No speech was detected. Try speaking more clearly.");
+                    showPopup("No speech detected.");
                     break;
                 case 'audio-capture':
-                    showPopup("No microphone was found. Check your device connections.");
+                    showPopup("No microphone found.");
                     break;
                 case 'not-allowed':
-                    showPopup("Microphone access was denied. Please check browser permissions.");
+                    showPopup("Microphone access was denied.");
                     break;
                 default:
-                    showPopup(`Speech recognition error: ${event.error}`);
+                    showPopup(`Error: ${event.error}`);
             }
-            
             toggleVoiceRecognition(false);
         };
         
         return true;
     } catch (error) {
-        console.error('Failed to initialize speech recognition:', error);
-        showPopup("Could not initialize speech recognition. Please try a different browser.");
+        showPopup("Could not initialize speech recognition.");
         return false;
     }
 }
@@ -137,53 +109,143 @@ async function toggleVoiceRecognition(forcedState = null) {
     const voiceButton = document.getElementById("voice-button");
     
     if (newState) {
-        // Ensure microphone permission
         try {
-            // Modern permission query
             const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
             
             if (permissionStatus.state === 'granted') {
-                // Start recognition
                 recognition.start();
             } else {
-                // Request permission
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 stream.getTracks().forEach(track => track.stop());
-                
-                // Retry starting recognition
                 recognition.start();
             }
             
             showPopup("Listening... Speak now.");
         } catch (error) {
-            console.error("Microphone access error:", error);
-            showPopup("Could not access microphone. Check permissions and try again.");
+            showPopup("Could not access microphone. Check permissions.");
         }
     } else {
-        // Stop listening
         try {
             recognition.stop();
         } catch (error) {
             console.error("Error stopping speech recognition:", error);
         }
-        
         isListening = false;
         voiceButton.classList.remove('listening');
     }
 }
 
-// Add event listener for Enter key in the input field
-questionInput.addEventListener("keypress", function (event) {
-    if (event.key === "Enter") {
-        event.preventDefault();
-        askQuestion();
+// Regex to detect URLs
+const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+// Function to process the response and replace URLs with anchor tags
+function formatLinks(response) {
+    return response.replace(urlRegex, (url) => {
+        return `<a href="${url}" class="pretty-link" target="_blank" rel="noopener noreferrer"> Source: ${url}</a>`;
+    });
+}
+
+function formatMessageContent(content) {
+    // Safely handle HTML content
+    const div = document.createElement('div');
+    div.innerHTML = content;
+    
+    // Process code blocks
+    div.querySelectorAll('pre code').forEach(block => {
+        const pre = block.parentElement;
+        const language = block.className.match(/language-(\w+)/)?.[1] || '';
+        if (language) {
+            pre.className = `language-${language}`;
+        }
+    });
+    
+    return div.innerHTML;
+}
+
+function addMessage(content, isUser = false) {
+    const template = document.getElementById('message-template').content.cloneNode(true);
+    const messageDiv = template.querySelector('.message');
+    const messageContent = template.querySelector('.message-content');
+    const messageInfo = template.querySelector('.message-info');
+    const time = template.querySelector('.time');
+    
+    // Add appropriate classes
+    messageDiv.classList.add(isUser ? 'user-message' : 'assistant-message');
+    
+    // Format and set message content
+    messageContent.innerHTML = formatMessageContent(content);
+    
+    // Set sender and time
+    const sender = template.querySelector('.sender');
+    sender.textContent = isUser ? 'You' : 'Assistant';
+    time.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    // Add to chatbox
+    chatbox.appendChild(template);
+    chatbox.scrollTop = chatbox.scrollHeight;
+}
+
+function askQuestion() {
+    let question = questionInput.value.trim();
+    if (question === '') return;
+
+    // Add user's question to chat
+    addMessage(question, true);
+    
+    // Clear input
+    questionInput.value = '';
+
+    // Generate a message ID for this query
+    const messageId = `msg-${Date.now()}`;
+
+    // Send question to server
+    socket.emit('ask_question', {
+        question: question,
+        id: messageId,
+        input_type: lastInputType
+    });
+}
+
+// Function to play audio
+function playAudio(audioUrl) {
+    let audioPlayer = document.getElementById('response-audio');
+    if (!audioPlayer) {
+        audioPlayer = document.createElement('audio');
+        audioPlayer.id = 'response-audio';
+        audioPlayer.controls = false;
+        document.body.appendChild(audioPlayer);
     }
-});
+    
+    audioPlayer.src = audioUrl;
+    audioPlayer.play().catch(e => {
+        showPopup("Could not play audio response.");
+    });
+}
+
+// Function to create an audio player element
+function createAudioPlayer(messageId, audioUrl) {
+    const audioContainer = document.createElement('div');
+    audioContainer.className = 'audio-controls';
+    
+    const playButton = document.createElement('button');
+    playButton.className = 'play-button';
+    playButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+    playButton.title = "Play response";
+    playButton.onclick = () => playAudio(audioUrl);
+    
+    audioContainer.appendChild(playButton);
+    return audioContainer;
+}
 
 // Show the popup with the specified message
 function showPopup(message) {
     popupMessage.textContent = message;
     popup.style.display = "block";
+    
+    // Auto-hide popup after 5 seconds
+    setTimeout(() => {
+        popup.style.display = "none";
+    }, 5000);
 }
 
 // Close the popup when the user clicks the close button
@@ -213,229 +275,293 @@ function uploadPDF() {
         method: "POST",
         body: formData,
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                showPopup(data.message);
-                const fileCount = files.length;
-                const fileNames = Array.from(files).map(file => file.name).join(", ");
-                chatbox.innerHTML += `<p><strong>System</strong> Processed ${fileCount} file(s): ${fileNames}</p>`;
-                chatbox.scrollTop = chatbox.scrollHeight;
-            } else if (data.error) {
-                showPopup(`Error: ${data.error}`);
-            }
-        })
-        .catch(error => {
-            showPopup("Error uploading PDF.");
-            console.error(error);
-        });
-}
-
-// Handle asking a question to the chatbot
-function askQuestion() {
-    const userQuestion = questionInput.value.trim();
-
-    if (!userQuestion) {
-        return;
-    }
-
-    chatbox.innerHTML += `<p><strong>You</strong> ${userQuestion}</p>`;
-    chatbox.scrollTop = chatbox.scrollHeight;  // Scroll to the bottom
-    questionInput.value = '';
-
-    // Generate unique ID for this message
-    const messageId = `msg-${Date.now()}`;
-
-    // Add a bot response container
-    chatbox.innerHTML += `<p id="${messageId}"><strong>Assistant</strong> <span id="${messageId}-content"></span><span class="typing-cursor"></span></p>`;
-    chatbox.scrollTop = chatbox.scrollHeight;
-
-    // Send the question via socket.io for streaming response
-    socket.emit('ask_question', {
-        question: userQuestion,
-        id: messageId
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            showPopup(data.message);
+            const fileCount = files.length;
+            const fileNames = Array.from(files).map(file => file.name).join(", ");
+            chatbox.innerHTML += `<p><strong>System</strong> Processed ${fileCount} file(s): ${fileNames}</p>`;
+            chatbox.scrollTop = chatbox.scrollHeight;
+        } else if (data.error) {
+            showPopup(`Error: ${data.error}`);
+        }
+    })
+    .catch(error => {
+        showPopup("Error uploading PDF.");
+        console.error(error);
     });
 }
 
-// Socket event listeners for streaming response
+// Socket event handlers
 socket.on('connect', () => {
     console.log('Connected to server');
 });
 
 socket.on('response_start', (data) => {
-    const messageElement = document.getElementById(data.id);
-    if (messageElement) {
-        messageElement.innerHTML = `<strong>Assistant</strong> <span id="${data.id}-content"></span><span class="typing-cursor"></span>`;
-    }
+    // Initialize the message when the response starts
+    addMessage('', false);
 });
 
 socket.on('response_chunk', (data) => {
-    const contentElement = document.getElementById(`${data.id}-content`);
-    if (contentElement) {
-        contentElement.innerHTML += data.chunk;
-        chatbox.scrollTop = chatbox.scrollHeight;
+    const messages = chatbox.querySelectorAll('.message');
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && lastMessage.classList.contains('assistant-message')) {
+        const messageContent = lastMessage.querySelector('.message-content');
+        if (messageContent) {
+            // Accumulate content and reformat
+            const currentContent = messageContent.innerHTML;
+            messageContent.innerHTML = formatMessageContent(currentContent + data.chunk);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
     }
 });
 
 socket.on('response_end', (data) => {
-    const messageElement = document.getElementById(data.id);
-    if (messageElement) {
-        const contentHTML = document.getElementById(`${data.id}-content`).innerHTML;
-        messageElement.innerHTML = `<strong>Assistant</strong> ${contentHTML}`;
-        chatbox.scrollTop = chatbox.scrollHeight;
-    }
-});
-
-socket.on('error', (data) => {
-    chatbox.innerHTML += `<p><strong>System</strong> <em>Error: ${data.error}</em></p>`;
+    // Response is complete, ensure scrolled to bottom
     chatbox.scrollTop = chatbox.scrollHeight;
 });
 
-// Add a direct permission test button to troubleshoot
-function createPermissionTestButton() {
-    const container = document.querySelector('.container');
-    // const testButton = document.createElement('button');
-    // testButton.textContent = "Test Microphone Permission";
-    // testButton.className = "test-mic-button";
-    // testButton.style.marginTop = "10px";
-    // testButton.onclick = () => {
-    //     showPopup("Requesting microphone permission...");
-    //     navigator.mediaDevices.getUserMedia({ audio: true })
-    //         .then(stream => {
-    //             stream.getTracks().forEach(track => track.stop());
-    //             showPopup("Microphone permission granted successfully!");
-    //         })
-    //         .catch(err => {
-    //             showPopup("Failed to get microphone permission: " + err.message);
-    //             console.error("Permission error:", err);
-    //         });
-    // };
-    // container.appendChild(testButton);
-}
+socket.on('error', (data) => {
+    addMessage(`Error: ${data.error}`, false);
+});
 
+// Initialize speech recognition and set up event listeners on page load
 document.addEventListener('DOMContentLoaded', function () {
-    // Create test button for direct permission request
-    createPermissionTestButton();
-
-    let inputWrapperExists = document.querySelector('.input-wrapper');
-    if (!inputWrapperExists) {
-        const inputSection = document.querySelector('.input-section');
-        const sendButton = document.querySelector('.input-section button');
-        
-        // Get the original input
-        const originalInput = document.getElementById('question');
-        
-        // Create the wrapper
-        const inputWrapper = document.createElement('div');
-        inputWrapper.className = 'input-wrapper';
-        
-        // Move the input to the wrapper
-        inputWrapper.appendChild(originalInput);
-        
-        // Insert the wrapper before the send button
-        inputSection.insertBefore(inputWrapper, sendButton);
+    // Initialize speech recognition
+    if (!recognition) {
+        initSpeechRecognition();
     }
     
-    // Add voice button to the UI
+    // Add voice button to the UI if needed
     const inputWrapper = document.querySelector('.input-wrapper');
-    const voiceButton = document.createElement('button');
-    voiceButton.id = 'voice-button';
-    voiceButton.className = 'voice-button';
-    voiceButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>';
-    voiceButton.title = "Voice input";
-    voiceButton.onclick = () => toggleVoiceRecognition();
-    inputWrapper.appendChild(voiceButton);
+    if (inputWrapper && !document.getElementById('voice-button')) {
+        const voiceButton = document.createElement('button');
+        voiceButton.id = 'voice-button';
+        voiceButton.className = 'voice-button';
+        voiceButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>';
+        voiceButton.title = "Voice input";
+        voiceButton.onclick = () => {
+            toggleVoiceRecognition();
+        };
+        inputWrapper.appendChild(voiceButton);
+    }
     
-    // Add CSS for voice button and input wrapper
-    const style = document.createElement('style');
-    style.textContent = `
-        .input-wrapper {
-            display: flex;
-            align-items: center;
-            flex-grow: 1;
-            position: relative;
-        }
-        
-        .voice-button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-            color: #555;
-            border-radius: 50%;
-            margin-left: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            position: absolute;
-            right: 8px;
-        }
-        
-        .voice-button:hover {
-            background-color: #f0f0f0;
-        }
-        
-        .voice-button.listening {
-            color: #ff4444;
-            background-color: #ffeeee;
-            animation: pulse 1.5s infinite;
-        }
-        
-        .voice-input {
-            background-color: #e6f7ff !important;
-            transition: background-color 0.5s ease;
-        }
-        
-        #question {
-            padding-right: 40px;
-        }
-        
-        .compatibility-notice {
-            background-color: #fff3cd;
-            color: #856404;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
-            font-size: 14px;
-            text-align: center;
-        }
-        
-        .test-mic-button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        
-        .test-mic-button:hover {
-            background-color: #45a049;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-    `;
-    document.head.appendChild(style);
+    // Set up event listeners for the send button
+    const sendButton = document.getElementById('send-button');
+    if (sendButton) {
+        sendButton.addEventListener('click', askQuestion);
+    }
     
-    // Initialize speech recognition
-    initSpeechRecognition();
+    // Set up event listener for the PDF upload button
+    const uploadButton = document.getElementById('upload-button');
+    if (uploadButton) {
+        uploadButton.addEventListener('click', uploadPDF);
+    }
     
-    setTimeout(() => {
-        const inputElement = document.getElementById('question');
-        if (inputElement) {
-            inputElement.focus();
-        }
-    }, 500);
-
-    // Close popup on clicking outside
-    window.onclick = function (event) {
-        if (event.target == popup) {
-            popup.style.display = "none";
-        }
-    };
+    // Set up event listener for Enter key in the question input
+    if (questionInput) {
+        questionInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                askQuestion();
+            }
+        });
+    }
 });
+
+// Clear chat functionality
+document.getElementById('clear-chat').addEventListener('click', function() {
+    while (chatbox.firstChild) {
+        chatbox.removeChild(chatbox.firstChild);
+    }
+    // Add welcome message back
+    const welcomeMessage = document.createElement('div');
+    welcomeMessage.className = 'welcome-message';
+    welcomeMessage.innerHTML = `
+        <p>I'm your study assistant. Here's how I can help:</p>
+        <ul>
+        <li><i class="fas fa-file-upload"></i> Upload your study materials (PDFs, docs, or text files)</li>
+        <li><i class="fas fa-question-circle"></i> Ask questions about specific topics or concepts</li>
+        <li><i class="fas fa-book-open"></i> Get detailed explanations with citations</li>
+        <li><i class="fas fa-search"></i> Find relevant sections in your materials</li>
+        </ul>
+        <p>Start by uploading your study materials above!</p>
+    `;
+    chatbox.appendChild(welcomeMessage);
+});
+
+// Export chat functionality
+document.getElementById('export-chat').addEventListener('click', function() {
+    let chatContent = '';
+    const messages = chatbox.querySelectorAll('.message');
+    
+    messages.forEach(message => {
+        const sender = message.querySelector('.sender').textContent;
+        const time = message.querySelector('.time').textContent;
+        const content = message.querySelector('.message-content').textContent;
+        
+        chatContent += `[${time}] ${sender}:\n${content}\n\n`;
+    });
+    
+    if (chatContent === '') {
+        chatContent = 'No messages to export.';
+    }
+    
+    const blob = new Blob([chatContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'chat-export.txt';
+    a.click();
+    window.URL.revokeObjectURL(url);
+});
+
+// Mode switching
+document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Remove active class from all mode buttons
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        // Add active class to clicked button
+        btn.classList.add('active');
+        
+        // Hide all interfaces
+        document.querySelectorAll('.interface-container').forEach(container => {
+            container.classList.remove('active');
+        });
+        
+        // Show selected interface
+        const mode = btn.dataset.mode;
+        document.getElementById(`${mode}-interface`).classList.add('active');
+    });
+});
+
+// Flashcard functionality
+let currentFlashcards = [];
+let currentCardIndex = 0;
+
+function generateFlashcards() {
+    const formData = new FormData();
+    const files = document.getElementById('pdf-upload').files;
+    
+    if (files.length === 0) {
+        showPopup('Please upload study materials first.');
+        return;
+    }
+    
+    for (let file of files) {
+        formData.append('pdf_files', file);
+    }
+    
+    fetch('/generate_flashcards', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            showPopup(data.error);
+            return;
+        }
+        currentFlashcards = data.flashcards;
+        currentCardIndex = 0;
+        displayFlashcards();
+        showPopup('Flashcards generated successfully!');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showPopup('Error generating flashcards. Please try again.');
+    });
+}
+
+function displayFlashcards() {
+    const flashcardsArea = document.getElementById('flashcards-area');
+    if (currentFlashcards.length === 0) {
+        flashcardsArea.innerHTML = '<p>No flashcards available. Generate some first!</p>';
+        return;
+    }
+    
+    const card = currentFlashcards[currentCardIndex];
+    flashcardsArea.innerHTML = `
+        <div class="flashcard-container">
+            <div class="flashcard">
+                <div class="flashcard-front">${card.front}</div>
+                <div class="flashcard-back">${card.back}</div>
+            </div>
+        </div>
+        <div class="flashcard-nav">
+            <button class="nav-btn" onclick="previousCard()" ${currentCardIndex === 0 ? 'disabled' : ''}>Previous</button>
+            <span>${currentCardIndex + 1} / ${currentFlashcards.length}</span>
+            <button class="nav-btn" onclick="nextCard()" ${currentCardIndex === currentFlashcards.length - 1 ? 'disabled' : ''}>Next</button>
+        </div>
+    `;
+    
+    // Add click listener to flip card
+    document.querySelector('.flashcard').addEventListener('click', function() {
+        this.classList.toggle('flipped');
+    });
+}
+
+function nextCard() {
+    if (currentCardIndex < currentFlashcards.length - 1) {
+        currentCardIndex++;
+        displayFlashcards();
+    }
+}
+
+function previousCard() {
+    if (currentCardIndex > 0) {
+        currentCardIndex--;
+        displayFlashcards();
+    }
+}
+
+function shuffleFlashcards() {
+    for (let i = currentFlashcards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [currentFlashcards[i], currentFlashcards[j]] = [currentFlashcards[j], currentFlashcards[i]];
+    }
+    currentCardIndex = 0;
+    displayFlashcards();
+}
+
+// Add event listener for shuffle button
+document.getElementById('shuffle-cards').addEventListener('click', shuffleFlashcards);
+
+// Update the processFiles function to handle both modes
+function processFiles() {
+    const files = document.getElementById('pdf-upload').files;
+    if (files.length === 0) {
+        showPopup('Please select files to upload.');
+        return;
+    }
+    
+    const formData = new FormData();
+    for (let file of files) {
+        formData.append('pdf_files', file);
+    }
+    
+    fetch('/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            showPopup(data.error);
+            return;
+        }
+        showPopup('Materials processed successfully!');
+        
+        // If in flashcard mode, automatically generate flashcards
+        const flashcardsInterface = document.getElementById('flashcards-interface');
+        if (flashcardsInterface.classList.contains('active')) {
+            generateFlashcards();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showPopup('Error processing materials. Please try again.');
+    });
+}
+

@@ -3,54 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Assistant</title>
+    <title>Study Sage - Smart Study Assistant</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <!-- Notification Popup -->
     <div id="popup" class="popup">
         <div class="popup-content">
             <span id="popup-close-btn" class="popup-close-btn">&times;</span>
-            <p id="popup-message" class="popup-message">PDF processed successfully!</p>
+            <p id="popup-message" class="popup-message">Materials processed successfully!</p>
         </div>
     </div>
 
     <!-- Main Content -->
     <div class="container">
-        <h1 class="app-title">PDF Assistant</h1>
-        <p class="app-subtitle">Upload your documents and ask questions about their content</p>
+        <h1 class="app-title">Study Sage</h1>
+        <p class="app-subtitle">Your AI-powered study companion for smarter learning</p>
         
-        <!-- PDF Upload Section -->
-        <div class="upload-section">
-            <h2>Upload Documents</h2>
-            <input type="file" id="pdf-upload" multiple accept="application/pdf" />
-            <button onclick="uploadPDF()">Process Files</button>
+        <!-- Mode Selection -->
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="chat">Study Assistant</button>
+            <button class="mode-btn" data-mode="flashcards">Generate Flashcards</button>
         </div>
 
-        <!-- Chatbot Interface -->
-        <div class="chat-container">
-            <div id="chatbox" class="chatbox">
-                <p><strong>Assistant</strong> Hello! Upload a PDF document, and I'll be ready to answer your questions about it.</p>
-            </div>
-            <div class="input-section">
-                <div class="input-wrapper">
-                    <input type="text" id="question" placeholder="Ask a question about your documents..." />
-                    <!-- The voice button will be inserted here by JavaScript -->
+        <!-- Materials Management Section -->
+        <div class="materials-section">
+            <div class="materials-header">
+                <h2>Study Materials</h2>
+                <div class="material-type-filter">
+                    <button class="filter-btn active" data-type="all">All</button>
+                    <!-- <button class="filter-btn" data-type="notes">Notes</button>
+                    <button class="filter-btn" data-type="textbooks">Textbooks</button>
+                    <button class="filter-btn" data-type="papers">Research Papers</button> -->
                 </div>
-                <button class="send-button" onclick="askQuestion()">Send</button>
+            </div>
+            
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <div class="upload-area" id="upload-area">
+                    <input type="file" id="pdf-upload" multiple accept=".pdf,.doc,.docx,.txt" />
+                    <div class="upload-content">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        <p>Drag & drop your study materials or <span class="browse-text">browse</span></p>
+                        <p class="upload-info">Supports PDF, Word documents, and text files</p>
+                    </div>
+                </div>
+                <!-- Add uploaded files display -->
+                <div class="uploaded-files" id="uploaded-files">
+                    <!-- Files will be added here dynamically -->
+                </div>
+                <br>
+                <button onclick="processFiles()" class="primary-button">Process Materials</button>
+            </div>
+
+            <!-- Materials List -->
+            <div class="materials-list" id="materials-list">
+                <!-- Materials will be dynamically added here -->
+            </div>
+        </div>
+
+        <!-- Chat Interface -->
+        <div id="chat-interface" class="interface-container active">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2>Study Assistant</h2>
+                    <div class="chat-tools">
+                        <button id="clear-chat" title="Clear chat history" class="tool-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                        </button>
+                        <button id="export-chat" title="Export chat" class="tool-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="chatbox" class="chatbox">
+                    <div class="welcome-message card">
+                        <p>I'm your study assistant. Here's how I can help:</p>
+                        <ul>
+                            <li><i class="fas fa-file-upload"></i> Upload your study materials (PDFs, docs, or text files)</li>
+                            <li><i class="fas fa-question-circle"></i> Ask questions about specific topics or concepts</li>
+                            <li><i class="fas fa-book-open"></i> Get detailed explanations with citations</li>
+                            <li><i class="fas fa-search"></i> Find relevant sections in your materials</li>
+                        </ul>
+                        <p>Start by uploading your study materials above!</p>
+                    </div>
+                </div>
+                <div class="input-section">
+                    <div class="input-wrapper">
+                        <input type="text" id="question" placeholder="Ask any question about your study materials..." />
+                    </div>
+                    <button class="send-button" onclick="askQuestion()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flashcards Interface -->
+        <div id="flashcards-interface" class="interface-container">
+            <div class="flashcards-container">
+                <div class="flashcards-header">
+                    <h2>Flashcards</h2>
+                    <div class="flashcard-tools">
+                        <button id="generate-cards" class="primary-button" onclick="generateFlashcards()">Generate Flashcards</button>
+                        <button id="shuffle-cards" class="tool-button" title="Shuffle flashcards">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="flashcards-area" class="flashcards-area">
+                    <div class="welcome-message">
+                        <h3>Welcome to Flashcards! 🎯</h3>
+                        <p>Generate AI-powered flashcards from your study materials:</p>
+                        <ul>
+                            <li>Upload your study materials above</li>
+                            <li>Click "Generate Flashcards" to create cards</li>
+                            <li>Click cards to flip them</li>
+                            <li>Use shuffle to randomize the order</li>
+                        </ul>
+                        <p>Start by uploading your materials!</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Browser compatibility notice for voice feature -->
+    <!-- Browser compatibility notice -->
     <div class="compatibility-notice" id="compatibility-notice" style="display: none;">
         <p>Voice recognition may not be available in your browser. Try using Chrome for the best experience.</p>
     </div>
 
     <script src="{{ url_for('static', filename='app.js') }}"></script>
+    
+    <!-- Chat messages template -->
+    <template id="message-template">
+        <div class="message">
+            <div class="message-info">
+                <span class="sender"></span>
+                <span class="time"></span>
+            </div>
+            <div class="message-bubble">
+                <div class="message-content"></div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        // Handle file uploads and display
+        function displayUploadedFiles(files) {
+            const uploadedFilesContainer = document.getElementById('uploaded-files');
+            uploadedFilesContainer.innerHTML = ''; // Clear existing files
+
+            Array.from(files).forEach(file => {
+                const fileChip = document.createElement('div');
+                fileChip.className = 'file-chip';
+                fileChip.innerHTML = `
+                    <span class="file-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </span>
+                    <span class="file-name">${file.name}</span>
+                    <span class="remove-file" onclick="removeFile('${file.name}')">×</span>
+                `;
+                uploadedFilesContainer.appendChild(fileChip);
+            });
+        }
+
+        function removeFile(fileName) {
+            const input = document.getElementById('pdf-upload');
+            const dt = new DataTransfer();
+            
+            Array.from(input.files)
+                .filter(file => file.name !== fileName)
+                .forEach(file => dt.items.add(file));
+            
+            input.files = dt.files;
+            displayUploadedFiles(input.files);
+        }
+
+        // Add event listener for file input changes
+        document.getElementById('pdf-upload').addEventListener('change', function(e) {
+            displayUploadedFiles(this.files);
+        });
+
+        // Add drag and drop functionality
+        const uploadArea = document.getElementById('upload-area');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--primary-color)';
+            uploadArea.style.background = 'var(--hover-bg)';
+        });
+
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--border-color)';
+            uploadArea.style.background = 'var(--background-color)';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--border-color)';
+            uploadArea.style.background = 'var(--background-color)';
+            
+            const input = document.getElementById('pdf-upload');
+            const dt = new DataTransfer();
+            
+            // Add existing files
+            Array.from(input.files).forEach(file => dt.items.add(file));
+            
+            // Add new files
+            Array.from(e.dataTransfer.files).forEach(file => dt.items.add(file));
+            
+            input.files = dt.files;
+            displayUploadedFiles(input.files);
+        });
+    </script>
 </body>
 </html>

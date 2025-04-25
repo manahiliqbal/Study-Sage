@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../PL-AI/project/faiss_index"
+		}
+	],
+	"settings": {}
+}
