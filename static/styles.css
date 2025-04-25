@@ -267,26 +267,40 @@ input[type="file"] {
 }
 
 .welcome-message {
-    background: var(--background-color);
-    border-radius: 8px;
+    background-color: var(--card-bg);
+    border-radius: 12px;
     padding: 24px;
     margin-bottom: 24px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    align-items: flex-start;
+    text-align: left;
 }
 
 .welcome-message h3 {
-    color: var(--text-color);
+    font-size: 1.8rem;
     margin-bottom: 12px;
-    font-size: 1.25rem;
+}
+
+.welcome-message p {
+    font-size: 1rem;
+    margin-bottom: 16px;
 }
 
 .welcome-message ul {
-    margin: 16px 0;
-    padding-left: 24px;
+    list-style-type: none;
+    padding-left: 0;
 }
 
 .welcome-message li {
-    margin-bottom: 8px;
-    color: var(--light-text);
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.welcome-message li i {
+    margin-right: 8px;
+    color: var(--primary-color);
 }
 
 .input-section {
@@ -962,45 +976,73 @@ p {
 }
 
 /* Flashcard Styles */
-.flashcard {
-    background: var(--background-color);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 16px;
-    cursor: pointer;
-    perspective: 1000px;
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
+.flashcard-container {
+    perspective: 1000px; /* For the 3D effect */
+    margin-bottom: 20px;
+    width: 400px; /* Increased width */
+    height: 250px; /* Increased height */
+    margin: 20px auto; /* Center the card */
+    position: relative; /* Ensure this container positions the inner elements properly */
 }
 
-.flashcard.flipped {
-    transform: rotateY(180deg);
+.flashcard-inner {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.8s; /* Smooth transition */
+    transform-style: preserve-3d; /* Necessary for the 3D rotation */
+    cursor: pointer;
+}
+
+.flashcard-inner.flipped {
+    transform: rotateY(180deg); /* Rotate the card on flip */
 }
 
 .flashcard-front,
 .flashcard-back {
-    position: absolute;
+    position: absolute; /* Position both sides absolutely to overlap */
     width: 100%;
     height: 100%;
-    backface-visibility: hidden;
+    backface-visibility: hidden; /* Hide the backside when facing away */
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
-    padding: 24px;
+    padding: 30px; /* Increased padding for more space */
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    font-size: 1.2em; /* Slightly larger font size */
+    line-height: 1.4;
+    box-sizing: border-box; /* Ensure padding doesn't affect overall size */
+}
+
+.flashcard-front {
+    background-color: #f8f8f8; /* Light background color */
 }
 
 .flashcard-back {
-    transform: rotateY(180deg);
-    background: var(--hover-bg);
+    background-color: #e9e9e9; /* Slightly darker for the back */
+    transform: rotateY(180deg); /* Initially hide the backside */
 }
 
-.flashcard-container {
-    position: relative;
-    width: 100%;
-    height: 200px;
-    margin-bottom: 24px;
+.flashcards-area .welcome-message {
+    text-align: left;
+    padding: 32px;
+}
+
+.flashcards-area .welcome-message h3 {
+    margin-bottom: 16px;
+    font-size: 1.5rem;
+}
+
+.flashcards-area .welcome-message ul {
+    text-align: left;
+    max-width: 400px;
+    margin: 16px 0;
+    padding-left: 0;
+}
+
+.flashcards-area .welcome-message li {
+    margin-bottom: 8px;
 }
 
 /* Flashcard Navigation */
@@ -1028,117 +1070,4 @@ p {
 .nav-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-}
-
-/* Welcome Message in Flashcards */
-.flashcards-area .welcome-message {
-    text-align: center;
-    padding: 32px;
-}
-
-.flashcards-area .welcome-message h3 {
-    margin-bottom: 16px;
-    font-size: 1.5rem;
-}
-
-.flashcards-area .welcome-message ul {
-    text-align: left;
-    max-width: 400px;
-    margin: 16px auto;
-}
-
-.flashcards-area .welcome-message li {
-    margin-bottom: 8px;
-}
-
-.flashcard-container {
-    perspective: 1000px; /* This is needed for the 3D effect */
-    margin-bottom: 20px;
-    width: 300px;
-    height: 200px;
-    margin: 20px auto; /* Center the card */
-  }
-  
-  .flashcard {
-    width: 100%;
-    height: 100%;
-    transition: transform 0.8s;
-    transform-style: preserve-3d;
-  }
-  
-  .flashcard-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-  }
-  
-  .flashcard-front, .flashcard-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden; /* Hide the back side when it's facing away */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    background-color: #f8f8f8; /* Light background color */
-    text-align: center;
-    font-size: 1.1em;
-    line-height: 1.4;
-  }
-  
-  .flashcard-back {
-    background-color: #e9e9e9; /* Slightly darker for the back */
-    transform: rotateY(180deg); /* Initially hidden behind */
-  }
-  
-  /* Initial State: Show front */
-  .flashcard-container .flashcard {
-    transform: rotateY(0deg);
-  }
-  
-  /* Flipped State: Show back */
-  .flashcard-container.flipped .flashcard {
-    transform: rotateY(180deg);
-  }
-  
-  .flashcard-container.flipped .flashcard-front{
-    visibility: hidden;
-  }
-
-  .welcome-message {
-    background-color: var(--card-bg);
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.welcome-message h3 {
-    font-size: 1.8rem;
-    margin-bottom: 12px;
-}
-
-.welcome-message p {
-    font-size: 1rem;
-    margin-bottom: 16px;
-}
-
-.welcome-message ul {
-    list-style-type: none;
-    padding-left: 0;
-}
-
-.welcome-message li {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-    font-size: 1rem;
-}
-
-.welcome-message li i {
-    margin-right: 8px;
-    color: var(--primary-color);
 }

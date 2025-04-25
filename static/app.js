@@ -468,11 +468,12 @@ function generateFlashcards() {
         displayFlashcards();
         showPopup('Flashcards generated successfully!');
     })
-    .catch(error => {
-        console.error('Error:', error);
-        showPopup('Error generating flashcards. Please try again.');
-    });
+        .catch(error => {
+            console.error('Error:', error);
+            showPopup('Error generating flashcards. Please try again.');
+        });
 }
+
 
 function displayFlashcards() {
     const flashcardsArea = document.getElementById('flashcards-area');
@@ -481,25 +482,38 @@ function displayFlashcards() {
         return;
     }
     
+    flashcardsArea.innerHTML = ''; // Clear previous content
     const card = currentFlashcards[currentCardIndex];
-    flashcardsArea.innerHTML = `
-        <div class="flashcard-container">
-            <div class="flashcard">
-                <div class="flashcard-front">${card.front}</div>
-                <div class="flashcard-back">${card.back}</div>
-            </div>
-        </div>
-        <div class="flashcard-nav">
-            <button class="nav-btn" onclick="previousCard()" ${currentCardIndex === 0 ? 'disabled' : ''}>Previous</button>
-            <span>${currentCardIndex + 1} / ${currentFlashcards.length}</span>
-            <button class="nav-btn" onclick="nextCard()" ${currentCardIndex === currentFlashcards.length - 1 ? 'disabled' : ''}>Next</button>
+    
+    // Create a flashcard container
+    const flashcardContainer = document.createElement('div');
+    flashcardContainer.className = 'flashcard-container';
+    
+    // Set up the inner structure for the flashcard
+    flashcardContainer.innerHTML = `
+        <div class="flashcard-inner">
+            <div class="flashcard-front">${card.front}</div>
+            <div class="flashcard-back">${card.back}</div>
         </div>
     `;
-    
+
     // Add click listener to flip card
-    document.querySelector('.flashcard').addEventListener('click', function() {
-        this.classList.toggle('flipped');
+    flashcardContainer.addEventListener('click', function () {
+        this.querySelector('.flashcard-inner').classList.toggle('flipped');
     });
+
+    // Create navigation buttons
+    const flashcardNav = document.createElement('div');
+    flashcardNav.className = "flashcard-nav";
+    flashcardNav.innerHTML = `
+        <button class="nav-btn" onclick="previousCard()" ${currentCardIndex === 0 ? 'disabled' : ''}>Previous</button>       
+        <span>${currentCardIndex + 1} / ${currentFlashcards.length}</span>
+        <button class="nav-btn" onclick="nextCard()" ${currentCardIndex === currentFlashcards.length - 1 ? 'disabled' : ''}>Next</button>
+    `;
+
+    // Append the flashcard and navigation to the area
+    flashcardsArea.appendChild(flashcardContainer);
+    flashcardsArea.appendChild(flashcardNav);
 }
 
 function nextCard() {
@@ -553,15 +567,14 @@ function processFiles() {
         }
         showPopup('Materials processed successfully!');
         
-        // If in flashcard mode, automatically generate flashcards
-        const flashcardsInterface = document.getElementById('flashcards-interface');
-        if (flashcardsInterface.classList.contains('active')) {
-            generateFlashcards();
-        }
+        // Remove the automatic flashcard generation logic
+        // const flashcardsInterface = document.getElementById('flashcards-interface');
+        // if (flashcardsInterface.classList.contains('active')) {
+        //     generateFlashcards();
+        // }
     })
     .catch(error => {
         console.error('Error:', error);
         showPopup('Error processing materials. Please try again.');
     });
-}
-
+}                                                                                                                           
