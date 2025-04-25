@@ -118,7 +118,7 @@ def combined_search_response(user_question):
     except Exception as e:
         web_context = f"Error retrieving web search context: {str(e)}"
     
-    # Combine PDF and Web Results
+    # Combine PDF and Web Results without repeating sources
     combined_context = f"PDF Results:\n{pdf_context_with_pages}\n\nWeb Results:\n{web_context}"
     return combined_context
 
@@ -128,19 +128,29 @@ def generate_gemini_response(prompt, question):
     model = genai.GenerativeModel('gemini-1.5-flash')
     response = model.generate_content(
         f"""
-        Answer the user's question in a detailed and structured manner using the provided context (both PDF and web sources). 
-        For each sentence or chunk of information, immediately cite its source by mapping a number to each reference starting from 1. 
-        List all the links and page numbers at the bottom of the entire message. Use consistent HTML formatting for citations:
-        - For PDF content: <span class="pdf-citation">Source: PDF, Page X</span>
-        - For web content: <a href="[URL]" class="web-citation">Source: [URL]</a>
-        Format all links consistently with the same HTML structure. 
-        If no answer is available from the context, say: <span class="no-answer">The answer is not available in the provided context.</span>
+        <p>Provide a comprehensive and detailed answer to the user's question using both PDF content and web sources.</p>
 
-        Context:
-        {prompt}
+        <h3>Key Information</h3>
+        <p>For every factual sentence or important chunk of information, include an inline superscript number at the end like this: <sup>1</sup>. Start numbering from 1 and increment as needed. Ensure that each source is only enumerated once.</p>
+
+        <h3>Sources</h3>
+        <p>At the end of the response, provide a numbered list of sources that match each superscript number, using the following HTML formats:</p>
+        <ul>
+            <li>For PDF sources: <span class="pdf-citation">[1] Source: PDF, Page X</span></li>
+            <li>For web sources: <span class="web-citation">[2] Source: <a href='[URL]' target="_blank">[URL]</a></span></li>
+        </ul>
+
+        <p>If no answer is found from the provided sources, return this exact line:</p>
+        <span class="no-answer">The answer is not available in the provided context.</span>
+
+        <h3>Formatting Guidelines</h3>
+        <p>Keep the output clean and readable, and ensure all links and formatting are valid HTML.</p>
+
+        <h3>Context</h3>
+        <p>{prompt}</p>
         
-        Question:
-        {question}
+        <h3>Question</h3>
+        <p>{question}</p>
         """,
         stream=True
     )

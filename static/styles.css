@@ -465,19 +465,19 @@ input[type="text"]:focus {
 }
 
 .user-message .message-content .pdf-citation {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
+    /* background: rgba(255, 255, 255, 0.2); */
+    /* border-color: rgba(255, 255, 255, 0.3); */
     color: white;
 }
 
 .message-content .web-citation {
     display: inline-block;
-    background: rgba(34, 197, 94, 0.1);
-    border: 1px solid rgba(34, 197, 94, 0.2);
+    /* background: rgba(34, 197, 94, 0.1);*/
+    /* border: 1px solid rgba(34, 197, 94, 0.2); */
     border-radius: 4px;
     padding: 2px 8px;
     font-size: 0.9rem;
-    color: var(--success-color);
+    /* color: var(--success-color); */
     margin: 0 2px;
     text-decoration: none;
 }
@@ -490,23 +490,24 @@ input[type="text"]:focus {
 
 /* Links in Messages */
 .message-content a {
-    color: var(--primary-color);
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: var(--transition);
+    color: #0066cc; /* Dark blue color for links */
+    text-decoration: underline; /* Underline to indicate it's a link */
+    border-bottom: 1px solid transparent; /* Add a border for hover effect */
+    transition: border-bottom-color 0.3s ease; /* Smooth transition for hover */
 }
 
 .message-content a:hover {
-    border-bottom-color: var(--primary-color);
+    border-bottom-color: #0066cc; /* Change border color on hover */
 }
 
+/* Ensure that user messages have white links */
 .user-message .message-content a {
-    color: white;
+    color: white; /* Change to white for user messages */
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .user-message .message-content a:hover {
-    border-bottom-color: white;
+    border-bottom-color: white; /* Change border color on hover for user messages */
 }
 
 /* Message Info */

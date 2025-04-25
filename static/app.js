@@ -138,10 +138,11 @@ async function toggleVoiceRecognition(forcedState = null) {
 // Regex to detect URLs
 const urlRegex = /(https?:\/\/[^\s]+)/g;
 
+
 // Function to process the response and replace URLs with anchor tags
 function formatLinks(response) {
     return response.replace(urlRegex, (url) => {
-        return `<a href="${url}" class="pretty-link" target="_blank" rel="noopener noreferrer"> Source: ${url}</a>`;
+        return `<a href="${url}" class="pretty-link" target="_blank">Source: ${url}</a>`;
     });
 }
 
@@ -149,7 +150,7 @@ function formatMessageContent(content) {
     // Safely handle HTML content
     const div = document.createElement('div');
     div.innerHTML = content;
-    
+
     // Process code blocks
     div.querySelectorAll('pre code').forEach(block => {
         const pre = block.parentElement;
@@ -158,8 +159,24 @@ function formatMessageContent(content) {
             pre.className = `language-${language}`;
         }
     });
-    
-    return div.innerHTML;
+
+    // Ensure citations are formatted correctly without adding breaks
+    const citations = div.querySelectorAll('.pdf-citation, .web-citation');
+    const uniqueCitations = new Set(); // Use a Set to track unique citations
+
+    citations.forEach(citation => {
+        const citationText = citation.innerText; // Get the citation text
+        if (!uniqueCitations.has(citationText)) {
+            uniqueCitations.add(citationText); // Add to the Set if it's unique
+            citation.style.display = 'inline'; // Ensure citations are inline
+        } else {
+            citation.style.display = 'none'; // Hide duplicate citations
+        }
+    });
+
+    // Format links
+    const formattedContent = formatLinks(div.innerHTML);
+    return formattedContent;
 }
 
 function addMessage(content, isUser = false) {
