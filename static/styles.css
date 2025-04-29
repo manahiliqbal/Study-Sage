@@ -1,14 +1,13 @@
-/* General Styles */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Arial', sans-serif; /* Elegant font */
+    /* font-family: 'Arial', sans-serif; */ /* Remove to avoid conflict */
 }
 
 :root {
     --primary-color: #54cba0; /* Pastel Mint */
-    --primary-hover: #81d4f4; /* Light Pastel Blue */
+    --primary-hover: #27d4cf; /* Light Pastel Blue */
     --secondary-color: #ffffff; /* White */
     --accent-color: #77efbf; /* Light Pastel Peach */
     --accent-hover: #ffccbc; /* Lighter Pastel Peach */
@@ -46,7 +45,6 @@ body {
 h1, h2, h3, h4 {
     font-weight: 600;
     color: var(--primary-color);
-    /* text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--secondary-color); */
 }
 
 /* App title and subtitle */
@@ -56,9 +54,8 @@ h1, h2, h3, h4 {
     color: var(--text-color);
     font-size: 2.5rem;
     font-weight: 700;
-    background: none; /* Remove gradient */
-    /* -webkit-background-clip: none; Remove background clip */
-    -webkit-text-fill-color: inherit; /* Inherit text color */
+    background: none; 
+    -webkit-text-fill-color: inherit; 
 }
 
 .app-subtitle {
@@ -192,7 +189,7 @@ input[type="file"] {
 }
 
 .primary-button:hover, .send-button:hover {
-    background: var(--hover-bg);
+    background: var(--primary-hover);
 }
 
 /* Materials List */
@@ -368,146 +365,102 @@ input[type="text"]:focus {
     max-width: 85%;
 }
 
-.message.user-message {
+.user-message {
     align-self: flex-end;
     margin-left: auto;
 }
 
-.message.assistant-message {
+.assistant-message {
     align-self: flex-start;
 }
 
 .message-bubble {
-    padding: 12px 16px;
-    border-radius: 16px;
     position: relative;
     word-wrap: break-word;
+    padding: 0; 
+    margin: 0; 
+    border: none; 
+    border-radius: 8px; 
 }
 
 .user-message .message-bubble {
     background: var(--primary-color);
-    color: var(--secondary-color);
-    border-bottom-right-radius: 4px;
+    color: var(--text-color);
 }
 
 .assistant-message .message-bubble {
-    background: var(--hover-bg);
+    background: var(--card-bg); 
     color: var(--text-color);
-    border-bottom-left-radius: 4px;
 }
 
 /* Message Content Formatting */
 .message-content {
-    line-height: 1.5;
+    line-height: 1.6;
     white-space: pre-wrap;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* Paragraphs */
 .message-content p {
-    margin-bottom: 8px;
+    margin: 0;
+    color: var(--text-color);
 }
 
-.message-content p:last-child {
-    margin-bottom: 0;
+/* Headings */
+.message-content h1,
+.message-content h2,
+.message-content h3,
+.message-content h4 {
+    margin: 0;
+    font-weight: 600;
+    color: var(--primary-color);
 }
 
-.message-content ul,
-.message-content ol {
-    margin: 8px 0;
-    padding-left: 24px;
-}
+.message-content h1 { font-size: 1.8em; }
+.message-content h2 { font-size: 1.5em; }
+.message-content h3 { font-size: 1.3em; }
+.message-content h4 { font-size: 1.1em; }
 
-.message-content li {
-    margin-bottom: 4px;
-}
+/* Links in Messages
+.message-content a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: border-bottom-color 0.3s ease;
+} */
+/* 
+.message-content a:hover {
+    border-bottom-color: var(--primary-color);
+    text-decoration: underline;
+} */
 
+
+/* Code Blocks */
+.message-content pre,
 .message-content code {
     font-family: 'Consolas', 'Monaco', monospace;
-    background: rgba(0, 0, 0, 0.05);
-    padding: 2px 4px;
+    background-color: rgba(0, 0, 0, 0.05);
     border-radius: 4px;
-    font-size: 0.9em;
-}
-
-.user-message .message-content code {
-    background: rgba(255, 255, 255, 0.2);
+    padding: 8px;
+    overflow-x: auto;
 }
 
 .message-content pre {
-    background: rgba(0, 0, 0, 0.05);
-    padding: 12px;
-    border-radius: 8px;
-    overflow-x: auto;
     margin: 8px 0;
 }
 
-.user-message .message-content pre {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.message-content blockquote {
-    border-left: 3px solid var(--border-color);
-    margin: 8px 0;
-    padding-left: 12px;
-    color: var(--light-text);
-}
-
-/* Citations in Messages */
-.message-content .pdf-citation {
-    display: inline-block;
-    background: rgba(37, 99, 235, 0.1);
-    border: 1px solid rgba(37, 99, 235, 0.2);
-    border-radius: 4px;
-    padding: 2px 8px;
-    font-size: 0.9rem;
-    color: var(--primary-color);
-    margin: 0 2px;
-    text-decoration: none;
-}
-
-.user-message .message-content .pdf-citation {
-    /* background: rgba(255, 255, 255, 0.2); */
-    /* border-color: rgba(255, 255, 255, 0.3); */
-    color: white;
-}
-
+/* Citations */
+.message-content .pdf-citation,
 .message-content .web-citation {
     display: inline-block;
-    /* background: rgba(34, 197, 94, 0.1);*/
-    /* border: 1px solid rgba(34, 197, 94, 0.2); */
-    border-radius: 4px;
-    padding: 2px 8px;
+    /* background: rgba(37, 99, 235, 0.1); */
+    padding: 4px 8px;
     font-size: 0.9rem;
-    /* color: var(--success-color); */
-    margin: 0 2px;
-    text-decoration: none;
-}
-
-.user-message .message-content .web-citation {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: white;
-}
-
-/* Links in Messages */
-.message-content a {
-    color: #0066cc; /* Dark blue color for links */
-    text-decoration: underline; /* Underline to indicate it's a link */
-    border-bottom: 1px solid transparent; /* Add a border for hover effect */
-    transition: border-bottom-color 0.3s ease; /* Smooth transition for hover */
-}
-
-.message-content a:hover {
-    border-bottom-color: #0066cc; /* Change border color on hover */
-}
-
-/* Ensure that user messages have white links */
-.user-message .message-content a {
-    color: white; /* Change to white for user messages */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.user-message .message-content a:hover {
-    border-bottom-color: white; /* Change border color on hover for user messages */
+    color: var(--primary-color);
+    border-radius: 4px;
+    margin: 0 4px;
+    font-style: italic; /* Italic style for citations */
 }
 
 /* Message Info */
@@ -518,19 +471,6 @@ input[type="text"]:focus {
     padding: 0 4px;
 }
 
-/* Markdown-style elements */
-.message-content h1,
-.message-content h2,
-.message-content h3,
-.message-content h4 {
-    margin: 16px 0 8px;
-    font-weight: 600;
-}
-
-.message-content h1 { font-size: 1.5em; }
-.message-content h2 { font-size: 1.3em; }
-.message-content h3 { font-size: 1.1em; }
-.message-content h4 { font-size: 1em; }
 
 .message-content table {
     border-collapse: collapse;
@@ -667,18 +607,6 @@ input[type="text"]:focus {
     border-bottom: 1px solid #eee;
 }
 
-.response-content p {
-    margin-bottom: 1em;
-}
-
-.response-content ul, .response-content ol {
-    margin-bottom: 1em;
-    padding-left: 2em;
-}
-
-.response-content li {
-    margin-bottom: 0.5em;
-}
 
 .response-content blockquote {
     border-left: 4px solid #ddd;
@@ -746,13 +674,6 @@ input[type="text"]:focus {
     margin-bottom: 0.5em;
 }
 
-/* Quotes */
-.response-content blockquote {
-    background-color: #f8f9fa;
-    border-left: 4px solid #6c5ce7;
-    padding: 0.5em 1em;
-    margin: 1em 0;
-}
 
 /* Horizontal rule - replace purple bars */
 .response-content hr {
@@ -787,14 +708,7 @@ input[type="text"]:focus {
     border-radius: 4px;
 }
 
-/* PDF responses specific styling */
-.pdf-response-container {
-    width: 100%;
-    margin-bottom: 1.5em;
-    overflow-wrap: break-word;
-}
 
-/* Add this to your existing CSS */
 .audio-only-message {
     display: flex;
     align-items: center;
@@ -821,7 +735,6 @@ input[type="text"]:focus {
     80%, 100% { content: ''; }
 }
 
-/* Add a button to reveal text if needed */
 .reveal-text-btn {
     margin-left: 8px;
     font-size: 12px;
@@ -859,18 +772,19 @@ input[type="text"]:focus {
     font-weight: bold;
 }
 
-/* Your existing pretty-link class */
 .pretty-link {
-    color: #0066cc;
-    text-decoration: underline;
+    color: #07becb; /* Base color */
+    text-decoration: none; /* Remove underline */
+    font-weight: bold; /* Make the text bold */
+    transition: color 0.3s ease, text-shadow 0.3s ease; /* Smooth transition for hover effects */
 }
 
-/* Add spacing between paragraphs */
-p {
-    margin-bottom: 10px;
+.pretty-link:hover {
+    color: #0056a1; /* Darker shade on hover */
+    text-shadow: 0 0 5px rgba(0, 102, 204, 0.5); 
+    text-decoration: underline; 
 }
 
-/* Uploaded Files Display */
 .uploaded-files {
     margin-top: 16px;
     display: flex;
@@ -915,7 +829,7 @@ p {
     background: rgba(239, 68, 68, 0.1);
 }
 
-/* Mode Selector */
+
 .mode-selector {
     display: flex;
     justify-content: center;
@@ -941,7 +855,7 @@ p {
     border-color: var(--primary-color);
 }
 
-/* Interface Containers */
+
 .interface-container {
     display: none;
 }
@@ -950,7 +864,7 @@ p {
     display: block;
 }
 
-/* Flashcards Container */
+
 .flashcards-container {
     background: var(--card-bg);
     border-radius: 12px;
@@ -976,53 +890,52 @@ p {
     min-height: 400px;
 }
 
-/* Flashcard Styles */
 .flashcard-container {
-    perspective: 1000px; /* For the 3D effect */
+    perspective: 1000px; 
     margin-bottom: 20px;
-    width: 400px; /* Increased width */
-    height: 250px; /* Increased height */
-    margin: 20px auto; /* Center the card */
-    position: relative; /* Ensure this container positions the inner elements properly */
+    width: 400px; 
+    height: 250px; 
+    margin: 20px auto; 
+    position: relative; 
 }
 
 .flashcard-inner {
     width: 100%;
     height: 100%;
-    transition: transform 0.8s; /* Smooth transition */
-    transform-style: preserve-3d; /* Necessary for the 3D rotation */
+    transition: transform 0.8s; 
+    transform-style: preserve-3d; 
     cursor: pointer;
 }
 
 .flashcard-inner.flipped {
-    transform: rotateY(180deg); /* Rotate the card on flip */
+    transform: rotateY(180deg); 
 }
 
 .flashcard-front,
 .flashcard-back {
-    position: absolute; /* Position both sides absolutely to overlap */
+    position: absolute; 
     width: 100%;
     height: 100%;
-    backface-visibility: hidden; /* Hide the backside when facing away */
+    backface-visibility: hidden; 
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 30px; /* Increased padding for more space */
+    padding: 30px; 
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: center;
-    font-size: 1.2em; /* Slightly larger font size */
+    font-size: 1.2em; 
     line-height: 1.4;
-    box-sizing: border-box; /* Ensure padding doesn't affect overall size */
+    box-sizing: border-box; 
 }
 
 .flashcard-front {
-    background-color: #f8f8f8; /* Light background color */
+    background-color: #94cfc9; 
 }
 
 .flashcard-back {
-    background-color: #e9e9e9; /* Slightly darker for the back */
-    transform: rotateY(180deg); /* Initially hide the backside */
+    background-color: #b0e5e0; 
+    transform: rotateY(180deg); 
 }
 
 .flashcards-area .welcome-message {

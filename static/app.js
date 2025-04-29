@@ -327,8 +327,7 @@ socket.on('response_chunk', (data) => {
         const messageContent = lastMessage.querySelector('.message-content');
         if (messageContent) {
             // Accumulate content and reformat
-            const currentContent = messageContent.innerHTML;
-            messageContent.innerHTML = formatMessageContent(currentContent + data.chunk);
+            messageContent.innerHTML += data.chunk;
             chatbox.scrollTop = chatbox.scrollHeight;
         }
     }
@@ -584,11 +583,6 @@ function processFiles() {
         }
         showPopup('Materials processed successfully!');
         
-        // Remove the automatic flashcard generation logic
-        // const flashcardsInterface = document.getElementById('flashcards-interface');
-        // if (flashcardsInterface.classList.contains('active')) {
-        //     generateFlashcards();
-        // }
     })
     .catch(error => {
         console.error('Error:', error);

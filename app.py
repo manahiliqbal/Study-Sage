@@ -97,7 +97,7 @@ def combined_search_response(user_question):
     # Get PDF context from FAISS index
     try:
         embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-        new_db = FAISS.load_local("faiss_index", embeddings)
+        new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
         docs = new_db.similarity_search(user_question, k=3)
         pdf_context = "\n".join([doc.page_content for doc in docs])
         page_numbers = [doc.metadata.get("page_number", "Unknown") for doc in docs]
@@ -128,29 +128,34 @@ def generate_gemini_response(prompt, question):
     model = genai.GenerativeModel('gemini-1.5-flash')
     response = model.generate_content(
         f"""
-        <p>Provide a comprehensive and detailed answer to the user's question using both PDF content and web sources.</p>
-
-        <h3>Key Information</h3>
-        <p>For every factual sentence or important chunk of information, include an inline superscript number at the end like this: <sup>1</sup>. Start numbering from 1 and increment as needed. Ensure that each source is only enumerated once.</p>
-
-        <h3>Sources</h3>
-        <p>At the end of the response, provide a numbered list of sources that match each superscript number, using the following HTML formats:</p>
-        <ul>
-            <li>For PDF sources: <span class="pdf-citation">[1] Source: PDF, Page X</span></li>
-            <li>For web sources: <span class="web-citation">[2] Source: <a href='[URL]' target="_blank">[URL]</a></span></li>
-        </ul>
-
-        <p>If no answer is found from the provided sources, return this exact line:</p>
-        <span class="no-answer">The answer is not available in the provided context.</span>
-
-        <h3>Formatting Guidelines</h3>
-        <p>Keep the output clean and readable, and ensure all links and formatting are valid HTML.</p>
-
-        <h3>Context</h3>
-        <p>{prompt}</p>
+        Answer the user's question in a detailed and structured manner using the provided context (both PDF and web sources). Ensure the response flows naturally and integrates both sources effectively.
         
-        <h3>Question</h3>
-        <p>{question}</p>
+        Use following html tags to format the answer
+        
+            Use <strong>HTML only</strong> — no Markdown.
+            Use <code>&lt;h2&gt;</code> and <code>&lt;h3&gt;</code> for headings.
+            Use <code>&lt;strong&gt;</code> for bold terms.
+            Wrap paragraphs in <code>&lt;p&gt;</code> tags.
+            Use <code>&lt;ul&gt;&lt;li&gt;</code> for bullet points.
+            
+        Ensure all tags are properly opened and closed.
+            
+        For each sentence or chunk of information, use inline superscripts to provide its citation number only.
+        
+        Use consistent HTML formatting for citations at the end:
+        
+        - For PDF content: <span class="pdf-citation"> [1] Source: PDF, Page X</span>
+        - For web content: <a href="[URL]" class="web-citation"> [2] Source: [URL]</a>
+        
+        Format all links consistently with the same HTML structure.
+        If no answer is available from the context, say: <span class="no-answer">The answer is not available in the provided context.</span>
+
+
+        Context
+        {prompt}
+        
+        Question
+        {question}
         """,
         stream=True
     )
@@ -193,7 +198,7 @@ def generate_flashcards_from_text(text):
         model = genai.GenerativeModel('gemini-1.5-flash')
         prompt = FLASHCARD_PROMPT.format(text=text)
         response = model.generate_content(prompt).text
-        logging.info(f"Raw LLM Response: {response}")
+        # logging.info(f"Raw LLM Response: {response}")
 
         try:
             # Attempt to extract JSON from the response
@@ -210,7 +215,7 @@ def generate_flashcards_from_text(text):
                 logging.error(f"Flashcards not in the expected format after parsing: {flashcards}")
                 raise ValueError("Flashcards not in the expected format")
             
-            logging.info(f"Parsed Flashcards: {flashcards}")
+            # logging.info(f"Parsed Flashcards: {flashcards}")
             return flashcards
 
         except json.JSONDecodeError as e:
