@@ -140,14 +140,20 @@ def generate_gemini_response(prompt, question):
             
         Ensure all tags are properly opened and closed.
             
-        For each sentence or chunk of information, use inline superscripts to provide its citation number only.
+        For each sentence or chunk of information, use inline superscripts to provide its citation number immediately.
         
-        Use consistent HTML formatting for citations at the end:
+        Then Use consistent HTML formatting for all the citations at the end:
         
         - For PDF content: <span class="pdf-citation"> [1] Source: PDF, Page X</span>
         - For web content: <a href="[URL]" class="web-citation"> [2] Source: [URL]</a>
         
-        Format all links consistently with the same HTML structure.
+        Important rules for citations:
+        1. Each citation number must refer to exactly one source
+        2. Each source must be listed on its own bullet point
+        3. Never combine multiple sources in a single citation
+        4. Maintain consistent numbering between inline citations and the reference list
+        5. Format all links consistently with the same HTML structure.
+        
         If no answer is available from the context, say: <span class="no-answer">The answer is not available in the provided context.</span>
 
 

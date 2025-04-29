@@ -185,6 +185,10 @@ function addMessage(content, isUser = false) {
     const messageContent = template.querySelector('.message-content');
     const messageInfo = template.querySelector('.message-info');
     const time = template.querySelector('.time');
+    const messageFeedback = template.querySelector('.message-feedback');
+    
+    // Generate a unique ID for the message
+    messageDiv.id = `msg-${Date.now()}`;
     
     // Add appropriate classes
     messageDiv.classList.add(isUser ? 'user-message' : 'assistant-message');
@@ -196,6 +200,54 @@ function addMessage(content, isUser = false) {
     const sender = template.querySelector('.sender');
     sender.textContent = isUser ? 'You' : 'Assistant';
     time.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    // Show feedback buttons only for assistant messages
+    if (!isUser) {
+        messageFeedback.style.display = 'flex';
+        const likeBtn = messageFeedback.querySelector('.like-btn');
+        const dislikeBtn = messageFeedback.querySelector('.dislike-btn');
+        
+        // Handle feedback clicks
+        likeBtn.addEventListener('click', () => {
+            if (!likeBtn.classList.contains('active')) {
+                likeBtn.classList.add('active');
+                dislikeBtn.classList.remove('active');
+                socket.emit('feedback', { messageId: messageDiv.id, feedback: 'positive' });
+            }
+        });
+        
+        dislikeBtn.addEventListener('click', () => {
+            if (!dislikeBtn.classList.contains('active')) {
+                dislikeBtn.classList.add('active');
+                likeBtn.classList.remove('active');
+                socket.emit('feedback', { messageId: messageDiv.id, feedback: 'negative' });
+            }
+        });
+    }
+    
+    // Show feedback buttons only for assistant messages
+    if (!isUser) {
+        messageFeedback.style.display = 'flex';
+        const likeBtn = messageFeedback.querySelector('.like-btn');
+        const dislikeBtn = messageFeedback.querySelector('.dislike-btn');
+        
+        // Handle feedback clicks
+        likeBtn.addEventListener('click', () => {
+            if (!likeBtn.classList.contains('active')) {
+                likeBtn.classList.add('active');
+                dislikeBtn.classList.remove('active');
+                socket.emit('feedback', { messageId: messageDiv.id, feedback: 'positive' });
+            }
+        });
+        
+        dislikeBtn.addEventListener('click', () => {
+            if (!dislikeBtn.classList.contains('active')) {
+                dislikeBtn.classList.add('active');
+                likeBtn.classList.remove('active');
+                socket.emit('feedback', { messageId: messageDiv.id, feedback: 'negative' });
+            }
+        });
+    }
     
     // Add to chatbox
     chatbox.appendChild(template);
@@ -588,4 +640,4 @@ function processFiles() {
         console.error('Error:', error);
         showPopup('Error processing materials. Please try again.');
     });
-}                                                                                                                           
+}

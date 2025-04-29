@@ -35,7 +35,12 @@
         <!-- Materials Management Section -->
         <div class="materials-section">
             <div class="materials-header">
-                <h2>Study Materials</h2>
+                <div class="header-content">
+                    <h2>Study Materials</h2>
+                    <button id="toggle-materials" class="toggle-btn" aria-label="Toggle materials section">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
                 <div class="material-type-filter">
                     <button class="filter-btn active" data-type="all">All</button>
                     <!-- <button class="filter-btn" data-type="notes">Notes</button>
@@ -147,11 +152,38 @@
             </div>
             <div class="message-bubble">
                 <div class="message-content"></div>
+                <div class="message-feedback" style="display: none;">
+                    <button class="feedback-btn like-btn" title="This response was helpful">
+                        <i class="fas fa-thumbs-up"></i>
+                    </button>
+                    <button class="feedback-btn dislike-btn" title="This response needs improvement">
+                        <i class="fas fa-thumbs-down"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </template>
 
     <script>
+        // Toggle materials section
+        document.getElementById('toggle-materials').addEventListener('click', function() {
+            const materialsSection = document.querySelector('.materials-section');
+            materialsSection.classList.toggle('collapsed');
+        });
+
+        // Collapse materials section after processing
+        function processFiles() {
+            // Your existing file processing logic here
+            const materialsSection = document.querySelector('.materials-section');
+            materialsSection.classList.add('collapsed');
+            // Show success popup
+            const popup = document.getElementById('popup');
+            popup.style.display = 'block';
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 3000);
+        }
+
         // Handle file uploads and display
         function displayUploadedFiles(files) {
             const uploadedFilesContainer = document.getElementById('uploaded-files');
