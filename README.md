@@ -1,6 +1,6 @@
 # Study Sage
 
-An intelligent PDF assistant that combines the power of Google's Gemini API with web search capabilities to provide comprehensive answers to your questions. The application features a modern web interface with support for both text and voice interactions, along with a flashcard generation system for enhanced learning.
+An intelligent study assistant that combines the power of Google's Gemini API with web search capabilities to provide comprehensive answers to your questions. The application features a modern web interface with support for both text and voice interactions, along with a flashcard generation system for enhanced learning. Designed specifically for students and researchers, Study Sage helps you process PDF documents, generate study materials, and interact with your content in new ways.
 
 ## Features
 
