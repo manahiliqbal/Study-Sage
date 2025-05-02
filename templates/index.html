@@ -29,7 +29,8 @@
         <!-- Mode Selection -->
         <div class="mode-selector">
             <button class="mode-btn active" data-mode="chat">Study Assistant</button>
-            <button class="mode-btn" data-mode="flashcards">Generate Flashcards</button>
+            <button class="mode-btn" data-mode="flashcards">Flashcards</button>
+            <button class="mode-btn" data-mode="summary">Summary</button>
         </div>
 
         <!-- Materials Management Section -->
@@ -116,6 +117,9 @@
                     <h2>Flashcards</h2>
                     <div class="flashcard-tools">
                         <button id="generate-cards" class="primary-button" onclick="generateFlashcards()">Generate Flashcards</button>
+                        <button id="export-flashcards" title="Export flashcards" class="tool-button" onclick="exportFlashcards()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        </button>
                         <button id="shuffle-cards" class="tool-button" title="Shuffle flashcards">
                             <i class="fas fa-shuffle"></i>
                         </button>
@@ -131,6 +135,34 @@
                             <li><i class="fas fa-shuffle"></i>Use shuffle to randomize the order</li>
                         </ul>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Interface -->
+        <div id="summary-interface" class="interface-container">
+            <div class="summary-container">
+                <div class="summary-header">
+                    <h2>Generate Summary</h2>
+                    <div class="summary-tools">
+                        <button id="generate-summary" class="primary-button" onclick="generateSummary()">Generate Summary</button>
+                        <button id="export-summary" title="Export summary" class="tool-button" onclick="exportSummary()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                        </button>
+                    </div>    
+                </div>
+                <div class="summary-description">
+                    <p>Upload your study materials and click "Generate Summary" to create a concise summary of the content.</p>
+                </div>
+                <div id="summary-area" class="summary-area">
+                    <p>Your summary will appear here.</p>
+                </div>
+                <div id="loading-indicator" class="loading-indicator" style="display: none;">
+                    <p>Generating summary, please wait...</p>
                 </div>
             </div>
         </div>

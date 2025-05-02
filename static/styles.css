@@ -538,8 +538,7 @@ input[type="text"]:focus {
 /* Citations */
 .message-content .pdf-citation,
 .message-content .web-citation {
-    display: inline-flex;
-    align-items: center;
+    display: inline-block;
     background: rgba(84, 203, 160, 0.1);
     padding: 4px 8px;
     font-size: 0.9rem;
@@ -854,16 +853,21 @@ input[type="text"]:focus {
 }
 
 .pretty-link {
-    color: #07becb; /* Base color */
-    text-decoration: none; /* Remove underline */
-    font-weight: bold; /* Make the text bold */
-    transition: color 0.3s ease, text-shadow 0.3s ease; /* Smooth transition for hover effects */
+    display: inline-block;
+    color: #07becb;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .pretty-link:hover {
-    color: #0056a1; /* Darker shade on hover */
-    text-shadow: 0 0 5px rgba(0, 102, 204, 0.5); 
-    text-decoration: underline; 
+    color: #0056a1;
+    text-shadow: 0 0 5px rgba(0, 102, 204, 0.5);
+    text-decoration: underline;
 }
 
 .uploaded-files {
@@ -1065,4 +1069,70 @@ input[type="text"]:focus {
 .nav-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.summary-container {
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--card-bg);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+/* background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    overflow: hidden; */
+.summary-container {
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 16px;
+}
+
+.summary-tools {
+    display: flex;
+    gap: 8px;
+}
+.summary-description {
+    margin: 16px 0;
+    font-size: 1rem;
+    color: var(--text-color);
+    line-height: 1.5;
+}
+
+.summary-area {
+    flex: 1;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 16px;
+    margin-top: 16px;
+    overflow-y: auto;
+    min-height: 200px;
+}
+
+.loading-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    font-size: 1rem;
+    color: var(--primary-color);
+    padding: 20px;
+    background: var(--card-bg);
+    border-radius: 6px;
 }

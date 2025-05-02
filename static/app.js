@@ -641,3 +641,108 @@ function processFiles() {
         showPopup('Error processing materials. Please try again.');
     });
 }
+
+function generateSummary() {
+    const formData = new FormData();
+    const files = document.getElementById('pdf-upload').files;
+
+    if (files.length === 0) {
+        showPopup('Please upload study materials first.');
+        return;
+    }
+
+    for (let file of files) {
+        formData.append('pdf_files', file);
+    }
+
+    // Show loading indicator
+    document.getElementById('loading-indicator').style.display = 'block';
+
+    fetch('/generate_summary', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Hide loading indicator
+        document.getElementById('loading-indicator').style.display = 'none';
+
+        if (data.error) {
+            showPopup(data.error);
+            return;
+        }
+        // Display the summary in a suitable area
+        displaySummary(data.summary);
+        showPopup('Summary generated successfully!');
+    })
+    .catch(error => {
+        // Hide loading indicator
+        document.getElementById('loading-indicator').style.display = 'none';
+        console.error('Error:', error);
+        showPopup('Error generating summary. Please try again.');
+    });
+}
+
+function displaySummary(summary) {
+    // Implement logic to display the summary in the UI
+    const summaryArea = document.getElementById('summary-area');
+    summaryArea.innerHTML = summary; // Assuming summary is HTML formatted
+}
+
+// Add event listener for the new summary button
+document.querySelector('.mode-btn[data-mode="summary"]').addEventListener('click', function() {
+    // Remove active class from all mode buttons
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    // Add active class to the summary button
+    this.classList.add('active');
+    
+    // Hide all interfaces
+    document.querySelectorAll('.interface-container').forEach(container => {
+        container.classList.remove('active');
+    });
+    
+    // Show the summary interface
+    document.getElementById('summary-interface').classList.add('active');
+});
+
+// Function to export flashcards
+function exportFlashcards() {
+    if (currentFlashcards.length === 0) {
+        showPopup('No flashcards available to export.');
+        return;
+    }
+
+    let flashcardContent = 'Flashcards:\n\n';
+    currentFlashcards.forEach((card, index) => {
+        flashcardContent += `Flashcard ${index + 1}:\n`;
+        flashcardContent += `Question: ${card.front}\n`;
+        flashcardContent += `Answer: ${card.back}\n\n`;
+    });
+
+    const blob = new Blob([flashcardContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'flashcards.txt';
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+// Function to export summary
+function exportSummary() {
+    const summaryArea = document.getElementById('summary-area');
+    const summaryContent = summaryArea.innerHTML;
+
+    if (!summaryContent || summaryContent.trim() === '') {
+        showPopup('No summary available to export.');
+        return;
+    }
+
+    const blob = new Blob([summaryContent], { type: 'text/html' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'summary.html';
+    a.click();
+    window.URL.revokeObjectURL(url);
+}

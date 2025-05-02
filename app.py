@@ -139,13 +139,16 @@ def generate_gemini_response(prompt, question):
             Use <code>&lt;ul&gt;&lt;li&gt;</code> for bullet points.
             
         Ensure all tags are properly opened and closed.
-            
-        For each sentence or chunk of information, use inline superscripts to provide its citation number immediately.
+        Donot include the tag html in the response.
+        For each sentence or chunk of information, use inline superscripts to provide its citation number immediately in the format <sup>1</sup>.
         
-        Then Use consistent HTML formatting for all the citations at the end:
+        At the end of the response, include a 'Sources' section with all citations formatted as:
         
-        - For PDF content: <span class="pdf-citation"> [1] Source: PDF, Page X</span>
-        - For web content: <a href="[URL]" class="web-citation"> [2] Source: [URL]</a>
+        <h3>Sources</h3>
+        <ol>
+            <li><span class="pdf-citation">PDF, Page(s) X</span></li>
+            <li><a href="[URL]" class="web-citation">[URL]</a></li>
+        </ol>
         
         Important rules for citations:
         1. Each citation number must refer to exactly one source
@@ -372,6 +375,60 @@ def generate_flashcards():
         
     except Exception as e:
         return jsonify({"error": f"Error generating flashcards: {str(e)}"}), 500
+
+@app.route('/generate_summary', methods=['POST'])
+def generate_summary():
+    """Generate a summary from uploaded PDFs."""
+    if 'pdf_files' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    
+    files = request.files.getlist('pdf_files')
+    if not files or files[0].filename == '':
+        return jsonify({"error": "No file selected"}), 400
+    
+    try:
+        # Read PDFs and extract text
+        pdf_docs = [file.read() for file in files if file.filename.lower().endswith('.pdf')]
+        if not pdf_docs:
+            return jsonify({"error": "No valid PDF files found"}), 400
+        
+        # Extract text from PDFs
+        documents_with_metadata = get_pdf_text(pdf_docs)
+        
+        # Combine all text for summary generation
+        all_text = "\n".join([doc[0] for doc in documents_with_metadata])
+        
+        # Generate summary using Gemini API
+        summary = generate_summary_from_text(all_text)
+        
+        return jsonify({
+            "summary": summary,
+            "message": "Summary generated successfully"
+        })
+        
+    except Exception as e:
+        return jsonify({"error": f"Error generating summary: {str(e)}"}), 500
+
+def generate_summary_from_text(text):
+    """Generate a summary from the given text using Gemini."""
+    try:
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        prompt = f"""
+        Summarize the following text into concise notes. Use basic HTML tags for formatting, including:
+        - Use <h2> for main headings and <h3> for subheadings.
+        - Use <p> for paragraphs.
+        - Use <ul> and <li> for bullet points.
+        - Ensure that the summary is clear and organized for study purposes.
+        
+        Donot include the tag html.
+        Text:
+        {text}
+        """
+        response = model.generate_content(prompt).text
+        return response
+    except Exception as e:
+        logging.error(f"Error generating summary: {e}")
+        raise
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)

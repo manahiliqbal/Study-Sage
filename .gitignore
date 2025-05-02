@@ -1,2 +1,4 @@
 .env
 .venv
+chat-w-pdf.code-workspace
+.vscode
