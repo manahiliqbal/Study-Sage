@@ -1,6 +1,6 @@
 # Study Sage
 
-An intelligent study assistant that combines the power of Google's Gemini API with web search capabilities to provide comprehensive answers to your questions. The application features a modern web interface with support for both text and voice interactions, along with a flashcard generation system for enhanced learning. Designed specifically for students and researchers, Study Sage helps you process PDF documents, generate study materials, and interact with your content in new ways.
+An intelligent study assistant that combines the power of Google's Gemini API with web search capabilities to provide comprehensive answers to your questions. The application features a modern web interface with support for both text and voice interactions, along with flashcard generation, summary creation, and export capabilities for enhanced learning. Designed specifically for students and researchers, Study Sage helps you process PDF documents, generate study materials, and interact with your content in new ways.
 
 ## Features
 
@@ -16,6 +16,7 @@ An intelligent study assistant that combines the power of Google's Gemini API wi
 - Text-to-Speech capability for voice responses
 - Formatted HTML responses with proper citations
 - Combined context from both PDF content and web search results
+- Export chat history for future reference
 
 ### Smart Search Integration
 - Integration with Google Custom Search for web context
@@ -25,7 +26,10 @@ An intelligent study assistant that combines the power of Google's Gemini API wi
 ### Study Tools
 - Automatic flashcard generation from PDF content
 - Focus on key concepts and relationships
-- JSON-formatted flashcard output for easy integration
+- Export flashcards for offline study
+- Smart summary generation with key points extraction
+- Downloadable summaries for quick review
+- JSON-formatted output for easy integration
 
 ## Prerequisites
 
@@ -66,7 +70,15 @@ python app.py
 
 3. Upload PDF documents using the interface
 
-4. Start asking questions about your documents
+4. Choose your preferred mode:
+   - Study Assistant for interactive Q&A
+   - Flashcards for active recall practice
+   - Summary for quick content overview
+
+5. Use the export options to download:
+   - Chat history
+   - Generated flashcards
+   - Created summaries
 
 ## API Documentation
 
@@ -79,6 +91,10 @@ python app.py
 #### `POST /generate_flashcards`
 - Generates flashcards from uploaded PDFs
 - Returns JSON array of flashcard objects
+
+#### `POST /generate_summary`
+- Creates comprehensive summaries from uploaded PDFs
+- Returns formatted summary content
 
 ### WebSocket Events
 
