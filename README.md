@@ -29,7 +29,7 @@ An intelligent study assistant that combines the power of Google's Gemini API wi
 - Export flashcards for offline study
 - Smart summary generation with key points extraction
 - Downloadable summaries for quick review
-- JSON-formatted output for easy integration
+
 
 ## Prerequisites
 
